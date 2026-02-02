@@ -1,5 +1,5 @@
-import { Todo, Todos } from "../types/todo.type";
-const store = new Map<Todo["id"], Todo>();
+import { Todo, Todos } from '../types/todo.type';
+const store = new Map<Todo['id'], Todo>();
 
 let iterator = 0;
 
@@ -7,7 +7,7 @@ function listTodos(): Todos {
   return Array.from(store.values());
 }
 
-function createTodo(title: Todo["title"]) {
+function createTodo(title: Todo['title']) {
   const todo: Todo = {
     id: ++iterator,
     title,
@@ -17,4 +17,11 @@ function createTodo(title: Todo["title"]) {
   return todo;
 }
 
-export { listTodos, createTodo };
+function updateTodo(id: Todo['id'], title: Todo['title']): void {
+  const todo = store.get(id);
+  if (todo) {
+    todo.title = title;
+  }
+}
+
+export { listTodos, createTodo, updateTodo };
