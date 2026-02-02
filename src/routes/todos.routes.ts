@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listTodos, createTodo, updateTodo } from '../services/todos.services';
+import { listTodos, createTodo, updateTodo, deleteTodo } from '../services/todos.services';
 
 const router = Router();
 
@@ -78,6 +78,22 @@ router.post('/', (req, res) => {
     item: todo,
     message: 'Todo created',
   });
+});
+
+router.delete('/:id', (req, res) => {
+  const { id } = req.params ?? {};
+  const todo = deleteTodo(+id);
+  if (todo !== null) {
+    res.status(200).json({
+      item: todo,
+      message: 'Todo deleted',
+    });
+  } else {
+    res.status(404).json({
+      status: 'Not found',
+      message: 'Todo not found',
+    });
+  }
 });
 
 export default router;

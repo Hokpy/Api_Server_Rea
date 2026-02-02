@@ -24,4 +24,8 @@ function updateTodo(id: Todo['id'], title: Todo['title']): void {
   }
 }
 
-export { listTodos, createTodo, updateTodo };
+function deleteTodo(id: Todo['id']): void {
+  store.delete(id);
+}
+
+export { listTodos, createTodo, updateTodo, deleteTodo };
