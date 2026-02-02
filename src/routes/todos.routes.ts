@@ -4,94 +4,144 @@ import { listTodos, createTodo, updateTodo, deleteTodo } from '../services/todos
 const router = Router();
 
 router.get('/', (req, res) => {
-  res.status(200).json({
-    items: listTodos(),
-    message: 'List of todos',
-  });
+  try {
+    res.status(200).json({
+      items: listTodos(),
+      message: 'List of todos',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Internal server error',
+      message: 'Failed to fetch todos',
+    });
+  }
 });
 
 router.put('/:id', (req, res) => {
-  const { id } = req.params ?? {};
-  const { title } = req.body ?? {};
+  try {
+    const { id } = req.params ?? {};
+    const { title } = req.body ?? {};
 
-  if (!title) {
-    return res.status(400).json({
-      status: 'Bad request',
-      message: 'Title is required',
-    });
-  }
+    // Validate ID
+    if (!id || isNaN(+id) || +id <= 0) {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Valid ID is required',
+      });
+    }
 
-  if (typeof title !== 'string') {
-    return res.status(400).json({
-      status: 'Bad request',
-      message: 'Title must be a string',
-    });
-  }
+    // Validate title
+    if (!title) {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Title is required',
+      });
+    }
 
-  if (title.trim().length === 0) {
-    return res.status(400).json({
-      status: 'Bad request',
-      message: 'Title must be empty',
-    });
-  }
+    if (typeof title !== 'string') {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Title must be a string',
+      });
+    }
 
-  const todo = updateTodo(+id, title);
-  if (todo !== null) {
-    res.status(200).json({
-      item: todo,
-      message: 'Todo updated',
-    });
-  } else {
-    res.status(404).json({
-      status: 'Not found',
-      message: 'Todo not found',
+    const trimmedTitle = title.trim();
+    if (trimmedTitle.length === 0) {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Title cannot be empty',
+      });
+    }
+
+    const todo = updateTodo(+id, trimmedTitle);
+    if (todo !== null) {
+      res.status(200).json({
+        item: todo,
+        message: 'Todo updated successfully',
+      });
+    } else {
+      res.status(404).json({
+        status: 'Not found',
+        message: 'Todo not found',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'Internal server error',
+      message: 'Failed to update todo',
     });
   }
 });
+
 router.post('/', (req, res) => {
-  const { title } = req.body ?? {};
+  try {
+    const { title } = req.body ?? {};
 
-  if (!title) {
-    return res.status(400).json({
-      status: 'Bad request',
-      message: 'Title is required',
+    // Validate title
+    if (!title) {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Title is required',
+      });
+    }
+
+    if (typeof title !== 'string') {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Title must be a string',
+      });
+    }
+
+    const trimmedTitle = title.trim();
+    if (trimmedTitle.length === 0) {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Title cannot be empty', // Fixed: changed from "must be empty"
+      });
+    }
+
+    const todo = createTodo(trimmedTitle);
+
+    res.status(201).json({
+      item: todo,
+      message: 'Todo created successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Internal server error',
+      message: 'Failed to create todo',
     });
   }
-
-  if (typeof title !== 'string') {
-    return res.status(400).json({
-      status: 'Bad request',
-      message: 'Title must be a string',
-    });
-  }
-
-  if (title.trim().length === 0) {
-    return res.status(400).json({
-      status: 'Bad request',
-      message: 'Title must be empty',
-    });
-  }
-
-  const todo = createTodo(title);
-
-  res.status(201).json({
-    item: todo,
-    message: 'Todo created',
-  });
 });
 
 router.delete('/:id', (req, res) => {
-  const { id } = req.params ?? {};
-  const todo = deleteTodo(+id);
-  if (todo !== null) {
-    res.status(200).json({
-      item: todo,
-      message: 'Todo deleted',
-    });
-  } else {
-    res.status(404).json({
-      status: 'Not found',
-      message: 'Todo not found',
+  try {
+    const { id } = req.params ?? {};
+
+    // Validate ID
+    if (!id || isNaN(+id) || +id <= 0) {
+      return res.status(400).json({
+        status: 'Bad request',
+        message: 'Valid ID is required',
+      });
+    }
+
+    const todo = deleteTodo(+id);
+    if (todo !== null) {
+      res.status(200).json({
+        item: todo,
+        message: 'Todo deleted successfully',
+      });
+    } else {
+      res.status(404).json({
+        status: 'Not found',
+        message: 'Todo not found',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'Internal server error',
+      message: 'Failed to delete todo',
     });
   }
 });
